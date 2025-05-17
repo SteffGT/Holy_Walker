@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.107.1/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.107.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style type="text/css">
+    container { margin: 0 auto; min-height: 100%;}
+  </style>
+</head>
+
+<body>
+  <div id="cesiumContainer" class="fullSize"></div>
+  
+  <script type="module">
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1NTk3MTdjMC04MWY1LTQ3NTgtODBmMy0wYzQxODIxOWM4MmEiLCJpZCI6MzAyODk1LCJpYXQiOjE3NDczNTE0ODh9.qDVAj9TITsiv55IY2VaLDE9Y1HcMBZk__0QCrfJdhH0';
+
+  const viewer = new Cesium.Viewer("cesiumContainer", {
+    timeline: false,
+    animation: false,
+    sceneModePicker: false,
+    baseLayerPicker: false,
+    shadows: false,
+    infoBox: false,
+    selectionIndicator: false,
+    
+  });
+  viewer.scene.globe.enableLighting = true;
+  // Add Photorealistic 3D Tiles
+
+  // set lighting to true
+  viewer.scene.globe.enableLighting = true;
+  // set time and sun position
+  viewer.clock.currentTime = Cesium.JulianDate.fromIso8601(
+    "2025-05-16T15:00:00"
+  );
+  </script>
+</body>
+</html>
