@@ -25,60 +25,51 @@ def distance_covered():
     distance_walked = sum(distance_walked)
     return distance_walked
 
-def landmark_distance(SwanLat, SwanLon):
-    # Create a list to store all landmark data
-    landmarks_data = []
-    
-    # Open the CSV file
-    with open('Backend/Landmarks.csv', newline='') as csvfile:
-        Landmark_reader = csv.DictReader(csvfile)
-        for row in Landmark_reader:
-            landmark = row['Landmark']
-            location = row['Location']
-            
-            # Format the location string
-            parts = location.rsplit(' ', 1)
-            if len(parts) > 1:
-                location = f"{parts[0]}, {parts[1]}"
-            
-            lat = float(row['Latitude'])
-            lon = float(row['Longitude'])
-            
-            # Convert to radians
-            lat_rad, lon_rad, swan_lat_rad, swan_lon_rad = map(radians, [lat, lon, SwanLat, SwanLon])
-            
-            # Differences
-            dlat = lat_rad - swan_lat_rad
-            dlon = lon_rad - swan_lon_rad
-            
-            # Haversine calculation
-            a = sin(dlat/2)**2 + cos(swan_lat_rad) * cos(lat_rad) * sin(dlon/2)**2
-            c = 2 * atan2(sqrt(a), sqrt(1 - a))
-            distance = Earth_Radius * c
-            
-            # Add to our list
-            landmarks_data.append((landmark, location, distance))
-    
-    return landmarks_data
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/landmarks", methods=["GET"])
 def get_landmarks():
+    # Calculate total distance walked (in meters)
+    distance_walked = distance_covered() * 1000
+
+    # Read landmarks and calculate their distance from Swansea
     landmarks = []
     with open("Backend/Landmarks.csv", "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
+            lat = float(row["Latitude"])
+            lon = float(row["Longitude"])
+            # Haversine calculation
+            lat_rad, lon_rad, swan_lat_rad, swan_lon_rad = map(radians, [lat, lon, SwanLat, SwanLon])
+            dlat = lat_rad - swan_lat_rad
+            dlon = lon_rad - swan_lon_rad
+            a = sin(dlat/2)**2 + cos(swan_lat_rad) * cos(lat_rad) * sin(dlon/2)**2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            distance = Earth_Radius * c * 1000  # meters
             landmarks.append({
                 "name": row["Landmark"],
                 "location": row["Location"],
-                "latitude": float(row["Latitude"]),
-                "longitude": float(row["Longitude"])
+                "latitude": lat,
+                "longitude": lon,
+                "distance": distance
             })
-            
-    return jsonify(landmarks)
+
+    # Sort landmarks by distance (ascending)
+    landmarks = sorted(landmarks, key=lambda x: x["distance"])
+
+    # Split into visited and unvisited
+    visited = [lm for lm in landmarks if lm["distance"] <= distance_walked]
+    unvisited = [lm for lm in landmarks if lm["distance"] > distance_walked]
+
+    # Sort visited in descending order (furthest first)
+    visited = sorted(visited, key=lambda x: x["distance"], reverse=True)
+
+    return jsonify({
+        "visited": visited,
+        "unvisited": unvisited
+    })
 
 
 #Upload the data using jsonify, this will be used to generate the size of the circle
@@ -91,10 +82,6 @@ def uploadData():
 
 # Store the result separately
 covered_distance = distance_covered()
-all_landmarks = landmark_distance(SwanLat, SwanLon)
-
-# Sort landmarks by distance (closest first)
-all_landmarks = sorted(all_landmarks, key=lambda x: x[2])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

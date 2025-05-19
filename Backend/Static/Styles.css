@@ -1,0 +1,192 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #181818;
+}
+
+#mainContent {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+}
+
+#cesiumContainer {
+    width: 75vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+#sidebar {
+    width: 25vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #23272e 70%, #2d3545 100%);
+    color: #fff;
+    padding: 10px 8px 10px 8px; /* Reduced padding */
+    box-sizing: border-box;
+    border-left: 1.5px solid #222;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    box-shadow: -6px 0 24px 0 rgba(0,0,0,0.13);
+    gap: 0.7em; /* Slightly reduced gap */
+}
+
+#sidebar .sidebar-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+}
+
+#visitedTable,
+#unvisitedTable {
+    margin-bottom: 18px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px 0 rgba(30,40,60,0.10);
+    background: #23272e;
+    border: none;
+    overflow: hidden;
+    /* Ensure the table doesn't grow beyond its container */
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+#visitedTable thead,
+#unvisitedTable thead {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    background: #23272e;
+    flex-shrink: 0;
+}
+
+/* Make table bodies taller (show more rows before scrolling) */
+#visitedTable tbody,
+#unvisitedTable tbody {
+    display: block;
+    max-height: 240px; /* Increase this value for a taller table */
+    overflow-y: auto;
+    background: #23272e;
+    scrollbar-width: thin;
+    scrollbar-color: #7ecfff #23272e;
+}
+
+#visitedTable tr,
+#unvisitedTable tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 1em;
+    border-bottom: 1px solid #31384a;
+}
+
+th {
+    background: #23272e;
+    color: #7ecfff;
+    font-weight: 700;
+    font-size: 1.08em;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #3a4256;
+}
+
+tbody tr:nth-child(even) {
+    background: #262b36;
+}
+
+tbody tr:nth-child(odd) {
+    background: #23272e;
+}
+
+tr:hover td {
+    background: #2a3a4d;
+    color: #fff;
+    transition: background 0.18s;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Custom scrollbars for table bodies */
+#visitedTable tbody::-webkit-scrollbar,
+#unvisitedTable tbody::-webkit-scrollbar {
+    width: 8px;
+    background: #23272e;
+}
+#visitedTable tbody::-webkit-scrollbar-thumb,
+#unvisitedTable tbody::-webkit-scrollbar-thumb {
+    background: #7ecfff;
+    border-radius: 4px;
+}
+#stepCounterBox {
+    flex-shrink: 0;
+    margin-top: 10px;
+    background: linear-gradient(120deg, #23272e 80%, #293040 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px 0 rgba(30,40,60,0.13);
+    border: none;
+    padding: 14px 6px 10px 6px; /* Reduced padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70px;
+    transition: box-shadow 0.2s;
+}
+
+#stepCounterLabel {
+    font-size: 1em;
+    color: #7ecfff;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+#stepCounterValue {
+    width: 100%;
+    min-height: 32px;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    font-size: clamp(1.2rem, 3vw, 2.2rem);
+    word-break: break-all;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    transition: font-size 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive: stack sidebar below globe on small screens */
+@media (max-width: 900px) {
+    #mainContent {
+        flex-direction: column;
+    }
+    #cesiumContainer, #sidebar {
+        width: 100vw;
+        height: 50vh;
+        border-radius: 0;
+    }
+    #sidebar {
+        border-left: none;
+        border-top: 1.5px solid #222;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: none;
+    }
+}

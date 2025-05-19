@@ -3,14 +3,50 @@
 <head>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.107.1/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.107.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <style>
-    #cesiumContainer { width: 100vw; height: 100vh; margin: 0; padding: 0; }
-    body { margin: 0; padding: 0; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='Styles.css') }}">
+  <title>Holy Walker</title>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-<!-- Must delay JS script link, as it must attatch to div above -->
+  <div id="mainContent">
+    <div id="cesiumContainer"></div>
+    <div id="sidebar">
+      <div id="sidebarContent">
+        <h3>Visited Landmarks</h3>
+        <table id="visitedTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Distance from BVS (km)</th>
+              <th>Distance Past (km)</th> 
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h3>Unvisited Landmarks</h3>
+        <table id="unvisitedTable">
+          <colgroup>
+            <col style="width: 28%;">
+            <col style="width: 28%;">
+            <col style="width: 22%;">
+            <col style="width: 22%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Distance from BVS (km)</th>
+              <th>Distance Remaining (km)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="stepCounterBox">
+        <div id="stepCounterLabel">Total Steps</div>
+        <div id="stepCounterValue"></div>
+      </div>
+    </div>
   <script src="{{ url_for('static', filename='DrawCircle.js') }}"></script>
 </body>
 </html>

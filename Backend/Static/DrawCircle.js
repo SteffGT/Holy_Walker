@@ -25,12 +25,7 @@ async function initCesiumAndDrawCircle() {
     var position = Cesium.Cartesian3.fromDegrees(-3.93650, 51.65683);
 
     viewer.entities.add({
-        position,
-        billboard: {
-            image: "./assets/marker.png",
-            height: 30,
-            width: 30
-        }
+        position
     });
 
     viewer.entities.add({
@@ -42,7 +37,7 @@ async function initCesiumAndDrawCircle() {
             outline: true,
             material: Cesium.Color.RED,
             outlineColor: Cesium.Color.CYAN,
-            outlineWidth: 3,
+            outlineWidth: 3
         }
     });
 
@@ -55,9 +50,10 @@ initCesiumAndDrawCircle();
 async function addLandmarkMarkers(viewer){
     try{
         const response = await fetch("http://localhost:5000/landmarks");
-        const landmarks = await response.json();
+        const data = await response.json();
         const landmarkEntities = [];
-        landmarks.forEach(lm => {
+        // Add markers for both visited and unvisited landmarks
+        [...data.visited, ...data.unvisited].forEach(lm => {
             const entity = viewer.entities.add({
                 position: Cesium.Cartesian3.fromDegrees(lm.longitude, lm.latitude),
                 billboard: {
@@ -106,3 +102,71 @@ async function addLandmarkMarkers(viewer){
        console.error("Error fetching landmarks: ", error); 
     }
 }
+
+
+async function populateLandmarkTables() {
+    try {
+        // Fetch both landmarks and distance walked
+        const [landmarksRes, distanceRes] = await Promise.all([
+            fetch("http://localhost:5000/landmarks"),
+            fetch("http://localhost:5000/distance")
+        ]);
+        const data = await landmarksRes.json();
+        const distanceData = await distanceRes.json();
+        const distanceWalked = distanceData["Total_Distance_Covered"]; // in meters
+
+        // Visited Table
+        const visitedTbody = document.querySelector("#visitedTable tbody");
+        visitedTbody.innerHTML = "";
+        data.visited.forEach(lm => {
+            const tr = document.createElement("tr");
+            const distancePast = (distanceWalked - lm.distance) / 1000; // in km
+            tr.innerHTML = `
+                <td>${lm.name}</td>
+                <td>${lm.location}</td>
+                <td>${(lm.distance/1000).toFixed(2)}</td>
+                <td>${distancePast > 0 ? distancePast.toFixed(2) : "0.00"}</td>
+            `;
+            visitedTbody.appendChild(tr);
+        });
+
+        // Unvisited Table (with Distance Remaining)
+        const unvisitedTbody = document.querySelector("#unvisitedTable tbody");
+        unvisitedTbody.innerHTML = "";
+        data.unvisited.forEach(lm => {
+            const distanceRemaining = (lm.distance - distanceWalked) / 1000; // in km
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${lm.name}</td>
+                <td>${lm.location}</td>
+                <td>${(lm.distance/1000).toFixed(2)}</td>
+                <td>${distanceRemaining > 0 ? distanceRemaining.toFixed(2) : "0.00"}</td>
+            `;
+            unvisitedTbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error("Error fetching landmarks or distance:", error);
+    }
+}
+
+// Call this after your Cesium initialization
+populateLandmarkTables();
+
+
+async function updateStepCounter() {
+    try {
+        const response = await fetch("http://localhost:5000/distance");
+        const data = await response.json();
+        const distance = data["Total_Distance_Covered"]; // in meters
+        const steps = Math.floor((distance / 1000) / 0.00073); // convert to km, then divide
+        const stepCounterValue = document.getElementById("stepCounterValue");
+        if (stepCounterValue) {
+            stepCounterValue.textContent = steps.toLocaleString();
+        }
+    } catch (error) {
+        console.error("Error fetching steps:", error);
+    }
+}
+
+// Call this after your page loads or after your Cesium initupdateStepCounter();
+updateStepCounter();
