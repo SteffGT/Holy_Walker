@@ -1,55 +1,52 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1NTk3MTdjMC04MWY1LTQ3NTgtODBmMy0wYzQxODIxOWM4MmEiLCJpZCI6MzAyODk1LCJpYXQiOjE3NDczNTE0ODh9.qDVAj9TITsiv55IY2VaLDE9Y1HcMBZk__0QCrfJdhH0';
 
 async function getDistance() {
-    console.log("Fetching distance...");
-    // Make a request to your backend API to get the distance  
-    try{
+    try {
         const response = await fetch("http://localhost:5000/distance");
         const data = await response.json();
-        const totalDistance = data["Total_Distance_Covered"];
-
-        console.log("Received distance:", totalDistance);
-
-        return totalDistance;
+        return data["Total_Distance_Covered"];
     } catch (error) {
         console.error("Error fetching distance:", error);
-   }
+    }
 }
 
-async function drawCircle() {
-    var viewer = new Cesium.Viewer("cesiumContainer");
-    var Longitude = -3.93650
-    var Latitude = 51.65683
-    // Await the distance value
-    const distance = await getDistance();
-    console.log(distance);
-    var position = Cesium.Cartesian3.fromDegrees(
-        Longitude, 
-        Latitude
-    );
+async function initCesiumAndDrawCircle() {
+    var viewer = new Cesium.Viewer("cesiumContainer", {
+        timeline: false,
+        animation: false,
+        sceneModePicker: true,
+        baseLayerPicker: true,
+        shadows: false,
+        infoBox: false,
+        selectionIndicator: false,
+    });
 
-    var entity = viewer.entities.add({
+    var Longitude = -3.93650;
+    var Latitude = 51.65683;
+    const distance = await getDistance();
+    var position = Cesium.Cartesian3.fromDegrees(-3.93650, 51.65683);
+
+    viewer.entities.add({
         position,
         billboard: {
             image: "./assets/marker.png",
             height: 30,
             width: 30
         }
-    })
+    });
 
-    var circleOutline = viewer.entities.add({
+    viewer.entities.add({
         position,
-        ellipse:{
+        ellipse: {
             semiMinorAxis: distance,
             semiMajorAxis: distance,
-            fill: true,
+            fill: false,
             outline: true,
             material: Cesium.Color.RED,
-            outlineColor: Cesium.Color.RED,
-            outlineWidth: 2,
+            outlineColor: Cesium.Color.CYAN,
+            outlineWidth: 3,
         }
-    })
-} 
+    });
+}
 
-// Call drawCircle as an async function
-drawCircle();
+initCesiumAndDrawCircle();
