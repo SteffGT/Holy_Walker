@@ -65,6 +65,21 @@ def landmark_distance(SwanLat, SwanLon):
 def home():
     return render_template("index.html")
 
+@app.route("/landmarks", methods=["GET"])
+def get_landmarks():
+    landmarks = []
+    with open("Backend/Landmarks.csv", "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            landmarks.append({
+                "name": row["Landmark"],
+                "location": row["Location"],
+                "latitude": float(row["Latitude"]),
+                "longitude": float(row["Longitude"])
+            })
+            
+    return jsonify(landmarks)
+
 
 #Upload the data using jsonify, this will be used to generate the size of the circle
 @app.route("/distance", methods=["GET"])
