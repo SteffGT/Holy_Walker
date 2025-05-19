@@ -1,8 +1,10 @@
 from math import radians, sin, cos, sqrt, atan2
 import csv
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, request, url_for
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Radius of Earth in kilometers (use 3958.8 for miles)
 Earth_Radius = 6371.0
@@ -59,19 +61,25 @@ def landmark_distance(SwanLat, SwanLon):
     
     return landmarks_data
 
-#Upload the data using jsonify, this will be used to generate the size of the circle
-@app.route("/distance", method=["GET"])
-def uploadData(distance_covered):
-    distance_covered = distance_covered * 1000 # Convert to meters
-    return jsonify({"Total Distance Covered": distance_covered})
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-# Update the main code to display all landmarks
-distance_covered = distance_covered()
+
+#Upload the data using jsonify, this will be used to generate the size of the circle
+@app.route("/distance", methods=["GET"])
+def uploadData():
+    print("Request Recieved for Distance")
+    distance = distance_covered() * 1000  # Convert to meters
+    print("Returning Distance in JSON format")
+    return jsonify({"Total_Distance_Covered": distance})
+
+# Store the result separately
+covered_distance = distance_covered()
 all_landmarks = landmark_distance(SwanLat, SwanLon)
-uploadData(distance_covered)
 
 # Sort landmarks by distance (closest first)
 all_landmarks = sorted(all_landmarks, key=lambda x: x[2])
-      
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
